@@ -4,14 +4,18 @@ using System.Text;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Collections.Generic;
 
 public class UdpReceiver:MonoBehaviour {
 
     public int Port = 55000;
     public GameObject ball;
     public BallController bc;
+    public Terrain terrain;
+    public TerrainData tData;
+    private object messageLock = new object();
+    private List<string> messageList = new List<string>();
 
-    private bool startBall = false;
     private IPEndPoint endPoint;
     private UdpClient client;
     private Thread receiveThread;
@@ -19,16 +23,55 @@ public class UdpReceiver:MonoBehaviour {
 
     private void Start(){
         bc = ball.GetComponent<BallController>();
+        tData = Terrain.activeTerrain.terrainData;
         Init(Port);
     }
 
     public void FixedUpdate(){
-        if (startBall){
-            bc.Move();
+        if(messageList.Count > 0){
+            lock(messageLock){
+                Decode(messageList[0]);
+                messageList.Clear();
+            }
+        }
+    }
+
+    public void Decode(string message){
+        string[] tokens = message.Split('$');
+
+        for (int i=0;i<tokens.Length;i++) print(i + tokens[i]);
+
+        int paramNumber = Convert.ToInt16(tokens[2]);
+        int type = Convert.ToInt16(tokens[3]);
+
+        switch(type){
+            case(1): //cell
+                string attribute = tokens[7];
+                switch(attribute){
+                    case("cover"):
+                        string txt = tokens[17];
+                        SplatPrototype[] terrainTexture = new SplatPrototype[1];
+                        terrainTexture[0] = new SplatPrototype();
+                        terrainTexture[0].texture = (Texture2D)Resources.Load(txt, typeof(Texture2D));
+                        tData.splatPrototypes = terrainTexture;
+                    break;
+                    case("height"):
+                        float[,] heights = new float[1,1];
+                        heights[0,0] = (float) Convert.ToDouble(tokens[19]);
+                        tData.SetHeights(0,0,heights);
+                    break;
+                }
+            break;
+            case(2):
+            break;
         }
     }
 
     private void OnApplicationQuit() {
+        tData.splatPrototypes = null;
+        float[,] heights = new float[1,1];
+        heights[0,0] = 0.0f;
+        tData.SetHeights(0,0, heights);
         Kill();
     }
 
@@ -57,17 +100,31 @@ public class UdpReceiver:MonoBehaviour {
         }
     }
 
-    private void ReceiveData() {
+    private void ReceiveData(){
         while (isOn) {
             try {
                 byte[] data = client.Receive(ref endPoint);
-                string text = Encoding.UTF8.GetString(data);
-                if (String.Equals(text, "Start")){
-                startBall = true;
+                string result = Encoding.UTF8.GetString(data);
+
+                StringBuilder sb = new StringBuilder();
+                foreach (char c in result) {
+                    if ( (c=='_') || (c == '$') || (c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')){
+                        sb.Append(c);
+                    }
                 }
-                Debug.Log("ReceiveData: data=" + text);
-            }catch (Exception err) {
-                //Debug.Log("ReceiveData: nothing");
+
+                result = sb.ToString();
+                Debug.Log("ReceiveData: Data=" + result);
+
+                if (result.Equals("COMPLETE_STATE"))    Kill();
+
+
+                lock(messageLock){
+                    messageList.Add(result);
+                    result = "";
+                }
+            } catch (Exception err) {
+                Debug.Log("ReceiveData: nothing");
             }
         }
     }
