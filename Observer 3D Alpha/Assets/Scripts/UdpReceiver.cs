@@ -9,10 +9,9 @@ using System.Collections.Generic;
 public class UdpReceiver:MonoBehaviour {
 
     public int Port = 55000;
-    public GameObject ball;
-    public BallController bc;
     public Terrain terrain;
     public TerrainData tData;
+    public Renderer skr;
     private object messageLock = new object();
     private List<string> messageList = new List<string>();
 
@@ -22,7 +21,6 @@ public class UdpReceiver:MonoBehaviour {
     private bool isOn;
 
     private void Start(){
-        bc = ball.GetComponent<BallController>();
         tData = Terrain.activeTerrain.terrainData;
         Init(Port);
     }
@@ -39,32 +37,69 @@ public class UdpReceiver:MonoBehaviour {
     public void Decode(string message){
         string[] tokens = message.Split('$');
 
-        for (int i=0;i<tokens.Length;i++) print(i + tokens[i]);
+        //for (int i=0;i<tokens.Length;i++) print(i + ": " + tokens[i]);
 
-        int paramNumber = Convert.ToInt16(tokens[2]);
-        int type = Convert.ToInt16(tokens[3]);
+        int size = Convert.ToInt16(tokens[0]);
+        tData.size = new Vector3(size/16, 1, size/16);
 
-        switch(type){
-            case(1): //cell
-                string attribute = tokens[7];
-                switch(attribute){
-                    case("cover"):
-                        string txt = tokens[17];
-                        SplatPrototype[] terrainTexture = new SplatPrototype[1];
-                        terrainTexture[0] = new SplatPrototype();
-                        terrainTexture[0].texture = (Texture2D)Resources.Load(txt, typeof(Texture2D));
-                        tData.splatPrototypes = terrainTexture;
-                    break;
-                    case("height"):
-                        float[,] heights = new float[1,1];
-                        heights[0,0] = (float) Convert.ToDouble(tokens[19]);
-                        tData.SetHeights(0,0,heights);
-                    break;
-                }
-            break;
-            case(2):
-            break;
+        Texture2D texture = new Texture2D(size, size);
+        skr.material.mainTexture = texture;
+
+        for (int y = 0; y < texture.height; y++){
+            for (int x = 0; x < texture.width; x++){
+                Color color;
+                if (y < x) color = Color.grey;
+                else color = Color.green;
+                texture.SetPixel(x, y, color);
+            }
         }
+        texture.Apply();
+        SplatPrototype[] terrainTexture = new SplatPrototype[1];
+        terrainTexture[0] = new SplatPrototype();
+        terrainTexture[0].texture = texture;
+        tData.splatPrototypes = terrainTexture;
+
+        /*
+        int j = 2;
+        string key;
+        for (int i=0;i<size;i++){
+            key = tokens[j];
+            //int dataType = Convert.ToInt16(tokens[j]);
+            switch(key){
+                case("1"): //cell
+                    print(tokens[j+1]);
+                    int attNumber = Convert.ToInt32(tokens[j+1]);
+                    for (int k=j;k<j+attNumber; k++){
+                        string attribute = tokens[k+3];
+                        int value = Convert.ToInt16(tokens[k+5]);
+                        switch(attribute){
+                            case("cover"):
+                                print("cover");
+                                print(value);
+                                /*string txt = tokens[17];
+                                SplatPrototype[] terrainTexture = new SplatPrototype[1];
+                                terrainTexture[0] = new SplatPrototype();
+                                terrainTexture[0].texture = (Texture2D)Resources.Load(txt, typeof(Texture2D));
+                                tData.splatPrototypes = terrainTexture;
+                            break;
+                            case("height"):
+                                print("height");
+                                print(value);
+                                /*float[,] heights = new float[1,1];
+                                heights[0,0] = (float) Convert.ToDouble(tokens[19]);
+                                tData.SetHeights(0,0,heights);
+                            break;
+                    }
+                    }
+                break;
+                case("2"):
+                break;
+
+                default:
+                break;
+            }
+            j++;
+        }*/
     }
 
     private void OnApplicationQuit() {
@@ -108,23 +143,25 @@ public class UdpReceiver:MonoBehaviour {
 
                 StringBuilder sb = new StringBuilder();
                 foreach (char c in result) {
-                    if ( (c=='_') || (c == '$') || (c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')){
+                    if ((c >= 'A' && c <= 'Z')||(c=='_')||(c == '$')||(c >= '0' && c <= '9')||(c >= 'a' && c <= 'z')){
                         sb.Append(c);
                     }
                 }
 
                 result = sb.ToString();
-                Debug.Log("ReceiveData: Data=" + result);
-
-                if (result.Equals("COMPLETE_STATE"))    Kill();
-
-
+                string[] aux = result.Split('$');
+                if (!result.Equals("COMPLETE_STATE")){
+                    int i = result.IndexOf("$$");
+                    if (i >= 0) result = result.Substring(i+2);
+                }
+                result = aux[3] + '$' + result;
+                Debug.Log(result);
                 lock(messageLock){
                     messageList.Add(result);
                     result = "";
                 }
-            } catch (Exception err) {
-                Debug.Log("ReceiveData: nothing");
+            } catch (Exception err){
+                Debug.Log("Nothing received");
             }
         }
     }
