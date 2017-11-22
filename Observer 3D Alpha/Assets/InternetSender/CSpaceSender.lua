@@ -1,12 +1,12 @@
 -- sending a basic cellular space
 
 cell = Cell{
-    height = Random{min = 0, max = 100},
-    cover = Random{"green", "brown"}
+    height = Random{0,1},
+    cover = Random{"green", "grey"}
 }
 
 cs = CellularSpace{
-    xdim = 10,
+    xdim = 33,
     instance = cell,
     execute = function(self)
         cs:notify()
