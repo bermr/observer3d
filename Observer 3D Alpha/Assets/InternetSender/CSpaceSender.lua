@@ -2,7 +2,7 @@
 
 cell = Cell{
     height = Random{0,1},
-    cover = Random{"green", "grey"}
+    cover = Random{"green", "black", "red"}
 }
 
 cs = CellularSpace{
@@ -23,7 +23,7 @@ is = InternetSender{
     visible = false
 }
 
-is = InternetSender{
+[[is = InternetSender{
     target = cs,
     port = 55000,
     host = "127.0.0.1",
@@ -31,7 +31,7 @@ is = InternetSender{
     protocol = "udp",
     compress = false,
     visible = false
-}
+}]]
 
 e = Environment{
     cs

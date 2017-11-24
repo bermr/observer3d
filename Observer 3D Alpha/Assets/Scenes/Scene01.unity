@@ -355,6 +355,10 @@ MonoBehaviour:
   terrain: {fileID: 1298601591}
   tData: {fileID: 15600000, guid: 8ae4c225eb1b64a58a043de14332df3f, type: 2}
   skr: {fileID: 1298601593}
+  x: 0
+  y: 0
+  texture: {fileID: 0}
+  K: 0
 --- !u!4 &1377527425
 Transform:
   m_ObjectHideFlags: 0
