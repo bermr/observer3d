@@ -29,7 +29,7 @@ cell = Cell{
 }
 
 cs = CellularSpace{
-    xdim = 50,
+    xdim = 30,
     instance = cell
 }
 
@@ -52,5 +52,5 @@ timer = Timer{
     end},
 }
 
-timer:run(1)
+timer:run(TURNS)
 

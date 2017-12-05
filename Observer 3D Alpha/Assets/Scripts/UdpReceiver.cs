@@ -49,6 +49,12 @@ public class UdpReceiver:MonoBehaviour {
             case("black"):
                 return Color.black;
             break;
+            case("alive"):
+                return Color.grey;
+            break;
+            case("dead"):
+                return Color.black;
+            break;
             default: return Color.black;
             break;
         }
@@ -60,14 +66,14 @@ public class UdpReceiver:MonoBehaviour {
         //for (int i=0;i<tokens.Length;i++) print(i + ": " + tokens[i]);
 
         int size = Convert.ToInt16(tokens[1]);
-        tData.size = new Vector3(size/16, 5, size/16);
-        int dimx = Convert.ToInt16(Math.Sqrt(size/2));
-        int dimy = Convert.ToInt16(Math.Sqrt(size/2));
-        Texture2D texture = new Texture2D(dimx, dimy);
+        tData.size = new Vector3(size/16, 20, size/16);
+        int dimx = Convert.ToInt16(Math.Sqrt(size));
+        int dimy = Convert.ToInt16(Math.Sqrt(size));
+        Texture2D texture = new Texture2D(dimx - 1, dimy - 1);
         skr.material.mainTexture = texture;
 
         int x=0, y=0, x1=0, y1=0;
-        tData.heightmapResolution = (dimx+dimy)/2;
+        tData.heightmapResolution = (dimx+dimy)/2 - 1;
         Debug.Log(tData.heightmapWidth + " " + tData.heightmapHeight + " " + texture.width + " " + texture.height);
         float[,] heights = tData.GetHeights(0, 0, tData.heightmapWidth, tData.heightmapHeight);
         int count=0;
@@ -81,6 +87,7 @@ public class UdpReceiver:MonoBehaviour {
                 int i=3;
                 int n;
                 int attNumber;
+                string hei;
                 attNumber = Convert.ToInt16(tokens[i+1]);
                 float h;
                 for(int k=0;k<size;k++){
@@ -94,17 +101,19 @@ public class UdpReceiver:MonoBehaviour {
                                     case("cover"):
                                         coverColor = tokens[aux+5];
                                         color = findColor(coverColor);
-                                        texture.SetPixel(x, y, color);
+                                        texture.SetPixel(y, x, color);
                                         aux += 3;
                                     break;
                                     case("height"):
                                         try{
-                                        h = (float)(Convert.ToDouble(tokens[aux+5]));
+                                            hei = tokens[aux+5];
+                                            hei = (hei.Length < 5) ? hei  : hei.Substring(0,5);
+                                            hei = "0." + hei;
+                                            h = 10 * ((float) Convert.ToDouble(hei));
                                         } catch(Exception err){
                                             h = 0.0f;
                                         }
                                         heights[y1,x1] = h;
-                                        //Debug.Log(y1 + " " + x1);
                                         aux += 3;
                                     break;
                                 }
@@ -121,7 +130,7 @@ public class UdpReceiver:MonoBehaviour {
                         }
                     }
                     } catch(Exception err){ i--; }
-                    i += 11;
+                    i += attNumber*3 + 5; //8 ou 11
                 }
             break;
         }
@@ -130,7 +139,8 @@ public class UdpReceiver:MonoBehaviour {
         terrainTexture[0] = new SplatPrototype();
         terrainTexture[0].texture = texture;
         tData.splatPrototypes = terrainTexture;
-        tData.SetHeights(0,0,heights);
+        tData.SetHeightsDelayLOD(0,0,heights);
+        //tData.ApplyDelayedHeightmapModification();
     }
 
     private void OnApplicationQuit() {
