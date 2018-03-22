@@ -25,6 +25,7 @@ cell = Cell{
             self.cover = self.past.cover
         end
         cs:notify()
+        os.execute("sleep " .. tonumber(0.1))
     end
 }
 

@@ -1,4 +1,4 @@
--- sending a basic cellular space
+-- sending a basic cellular CellularSpace
 
 r = Random()
 cell = Cell{
@@ -15,7 +15,7 @@ cs = CellularSpace{
             --print(cell.x, cell.height)
         end)
         cs:notify()
-        os.execute("sleep " .. tonumber(2))
+        os.execute("sleep " .. tonumber(0.05))
     end
 }
 
@@ -48,4 +48,4 @@ t = Timer{
     Event{action = cs}
 }
 
-t:run(10)
+t:run(100)
