@@ -1,36 +1,33 @@
 -- game of life adapted example
 
 PROBABILITY = 0.15
-TURNS = 20
+TURNS = 200
 
 cell = Cell{
-    cover = Random{alive = PROBABILITY, dead = 1 - PROBABILITY},
+    cover = Random{white = PROBABILITY, black = 1 - PROBABILITY},
     countAlive = function(self)
         local count = 0
         forEachNeighbor(self, function(neigh)
-            if neigh.past.cover == "alive" then
+            if neigh.past.cover == "white" then
                 count = count + 1
             end
         end)
-
         return count
     end,
     execute = function(self)
         local n = self:countAlive()
-        if self.cover == "alive" and (n > 3 or n < 2) then
-            self.cover = "dead"
-        elseif self.cover == "dead" and n == 3 then
-            self.cover = "alive"
+        if self.cover == "white" and (n > 3 or n < 2) then
+            self.cover = "black"
+        elseif self.cover == "black" and n == 3 then
+            self.cover = "white"
         else
             self.cover = self.past.cover
         end
-        cs:notify()
-        os.execute("sleep " .. tonumber(0.1))
     end
 }
 
 cs = CellularSpace{
-    xdim = 30,
+    xdim = 33,
     instance = cell
 }
 
@@ -50,6 +47,7 @@ timer = Timer{
     Event{action = function()
         cs:synchronize()
         cs:execute()
+        cs:notify()
     end},
 }
 
