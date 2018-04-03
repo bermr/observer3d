@@ -54,6 +54,16 @@ is = InternetSender{
     visible = false
 }
 
+is = InternetSender{
+    target = cs,
+    port = 55000,
+    host = "127.0.0.1",
+    select = "height",
+    protocol = "udp",
+    compress = false,
+    visible = false
+}
+
 timer = Timer{
     Event{action = function()
         cs:synchronize()
@@ -62,4 +72,4 @@ timer = Timer{
     end},
 }
 
-timer:run(100)
+timer:run(1)

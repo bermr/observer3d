@@ -15,7 +15,6 @@ public class UdpReceiver:MonoBehaviour {
     public Renderer skr;
     private object messageLock = new object();
     private List<string> messageList = new List<string>();
-    private volatile static bool noAction = true;
     private Texture2D texture;
     private SplatPrototype[] terrainTexture = new SplatPrototype[1];
     private IPEndPoint endPoint;
@@ -38,7 +37,6 @@ public class UdpReceiver:MonoBehaviour {
             }
         }
     }
-
 
     public Color findColor(string color){
         switch(color){
@@ -65,22 +63,28 @@ public class UdpReceiver:MonoBehaviour {
         }
     }
 
-    public Color findColorW(int color){
-        if (color == 0) return Color.white;
-        else if (color > 10) return Color.blue;
-        else return Color.grey;
+    public Color findColorW(long color){
+        if (color < 100) return Color.white;
+        else if (color > 100 && color < 1000) return new Color(0.80f, 0.90f, 1.00f);
+        else if (color > 1000 && color < 2000) return new Color(0.70f, 0.80f, 0.90f);
+        else if (color > 2000 && color < 3000) return new Color(0.60f, 0.70f, 0.80f);
+        else if (color > 3000 && color < 5000) return new Color(0.50f, 0.60f, 0.70f);
+        else if (color > 5000 && color < 6000) return new Color(0.40f, 0.50f, 0.60f);
+        else if (color > 6000 && color < 7000) return new Color(0.30f, 0.40f, 0.50f);
+        else if (color > 7000 && color < 8000) return new Color(0.20f, 0.30f, 0.40f);
+        else if (color > 8000 && color < 9000) return new Color(0.10f, 0.20f, 0.30f);
+        else return new Color(0.05f, 0.10f, 0.20f);
     }
 
     public void Decode(string messageReceived){
         string[] tokens = messageReceived.Split('$');
 
         //for (int i=0;i<tokens.Length;i++) print(i + ": " + tokens[i]);
-
         int size = Convert.ToInt16(tokens[1]);
-        tData.heightmapResolution = 33;
-        tData.size = new Vector3(Convert.ToSingle(Math.Sqrt(size/50)), 20, Convert.ToSingle(Math.Sqrt(size/50)));
         int dimx = Convert.ToInt16(Math.Sqrt(size));
         int dimy = Convert.ToInt16(Math.Sqrt(size));
+        tData.heightmapResolution = dimx;
+        tData.size = new Vector3(Convert.ToSingle(Math.Sqrt(size/2)), dimx/3, Convert.ToSingle(Math.Sqrt(size/2)));
         texture = new Texture2D(dimx, dimy);
         skr.material.mainTexture = texture;
         //Debug.Log(tData.heightmapWidth + " " + tData.heightmapHeight + " " + texture.width + " " + texture.height);
@@ -98,7 +102,7 @@ public class UdpReceiver:MonoBehaviour {
                 int attNumber;
                 int xi, yi;
                 string hei;
-                int water;
+                long water;
                 float h;
                 attNumber = Convert.ToInt16(tokens[i+1]);
                 for(int k=0;k<size;k++){
@@ -121,7 +125,9 @@ public class UdpReceiver:MonoBehaviour {
                                     break;
                                     case("water"):
                                         coverColor = tokens[aux+5];
-                                        water = Convert.ToInt16(coverColor);
+                                        //Debug.Log(coverColor);
+                                        coverColor = (coverColor.Length < 5) ? coverColor  : coverColor.Substring(0,5);
+                                        water = Convert.ToInt64(coverColor);
                                         color = findColorW(water);
                                         pixels[Convert.ToInt16(tokens[aux-1]) - 3] = color;
                                         //texture.SetPixel(xi, yi, color);
@@ -132,7 +138,7 @@ public class UdpReceiver:MonoBehaviour {
                                             hei = tokens[aux+5];
                                             hei = (hei.Length < 5) ? hei  : hei.Substring(0,5);
                                             hei = "0." + hei;
-                                            h = 10 * ((float) Convert.ToDouble(hei));
+                                            h = 10*((float) Convert.ToDouble(hei));
                                             if (h==1) h = 0.0f;
                                         } catch(Exception err){
                                             h = 0.0f;
@@ -217,6 +223,7 @@ public class UdpReceiver:MonoBehaviour {
                     int index = msg.IndexOf("$$");
                     if (index >= 0) msg = msg.Substring(index+2);
                     msg =  auxStr[1] + '$' + auxStr[3] + '$' + msg;
+                    //Debug.Log(msg);
                     lock(messageLock){
                         messageList.Add(msg);
                     }
@@ -228,7 +235,6 @@ public class UdpReceiver:MonoBehaviour {
                     if (result[index+1] == '$') index++;
                     if (index >= 0) msg = msg + result.Substring(index+1);*/
                     msg = msg + result;
-                    //Debug.Log(result);
                 }
 
             } catch (Exception err){
