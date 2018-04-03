@@ -8,7 +8,7 @@ cell = Cell{
 }
 
 cs = CellularSpace{
-    xdim = 90,
+    xdim = 33,
     instance = cell,
     execute = function(self)
         cs:get(x,y).cover = "red"
@@ -47,4 +47,4 @@ t = Timer{
     Event{action = cs}
 }
 
-t:run(90)
+t:run(33)

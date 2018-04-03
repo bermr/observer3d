@@ -1,7 +1,7 @@
 -- game of life adapted example
 
 PROBABILITY = 0.15
-TURNS = 200
+TURNS = 1000
 
 cell = Cell{
     cover = Random{white = PROBABILITY, black = 1 - PROBABILITY},
@@ -27,7 +27,7 @@ cell = Cell{
 }
 
 cs = CellularSpace{
-    xdim = 33,
+    xdim = 60,
     instance = cell
 }
 

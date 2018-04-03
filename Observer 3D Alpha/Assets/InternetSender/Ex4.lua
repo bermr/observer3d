@@ -33,7 +33,7 @@ cell = Cell{
 }
 
 cs = CellularSpace{
-    file = filePath("cabecadeboi.shp", "gis"),
+    file = filePath("cabecadeboi800.shp", "base"),
     instance = cell
 }
 
@@ -62,4 +62,4 @@ timer = Timer{
     end},
 }
 
-timer:run(50)
+timer:run(100)

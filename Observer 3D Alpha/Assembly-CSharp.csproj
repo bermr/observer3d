@@ -54,6 +54,7 @@
      <Compile Include="Assets\Scripts\BallController.cs" />
      <Compile Include="Assets\Scripts\CameraController.cs" />
      <Compile Include="Assets\Scripts\FPSDisplay.cs" />
+     <Compile Include="Assets\Scripts\RingBuffer.cs" />
      <Compile Include="Assets\Scripts\UdpReceiver.cs" />
  <Reference Include="UnityEngine.CoreModule">
  <HintPath>/opt/Unity/Editor/Data/Managed/UnityEngine/UnityEngine.CoreModule.dll</HintPath>
