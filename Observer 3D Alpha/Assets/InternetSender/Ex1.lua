@@ -2,12 +2,12 @@
 
 r = Random()
 cell = Cell{
-    height = Random{0,1},
+    height = Random{min = 0, max = 1},
     cover = Random{"green", "black", "red"}
 }
 
 cs = CellularSpace{
-    xdim = 33,
+    xdim = 80,
     instance = cell,
     execute = function(self)
         forEachCell (cs, function(cell)

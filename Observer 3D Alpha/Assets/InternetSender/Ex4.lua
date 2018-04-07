@@ -1,4 +1,4 @@
--- cabecadeboi runoff adapted example
+    -- cabecadeboi runoff adapted example
 
 
 cell = Cell{
@@ -33,7 +33,7 @@ cell = Cell{
 }
 
 cs = CellularSpace{
-    file = filePath("cabecadeboi800.shp", "base"),
+    file = filePath("cabecadeboi.shp", "gis"),
     instance = cell
 }
 
@@ -44,7 +44,7 @@ cs:createNeighborhood{
     end
 }
 
-is = InternetSender{
+--[[is = InternetSender{
     target = cs,
     port = 55000,
     host = "127.0.0.1",
@@ -52,7 +52,7 @@ is = InternetSender{
     protocol = "udp",
     compress = false,
     visible = false
-}
+}]]
 
 is = InternetSender{
     target = cs,

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 public class UdpReceiver:MonoBehaviour {
     public int Port = 55000;
@@ -15,18 +16,25 @@ public class UdpReceiver:MonoBehaviour {
     public Renderer skr;
     private object messageLock = new object();
     private List<string> messageList = new List<string>();
-    private Texture2D texture;
-    private SplatPrototype[] terrainTexture = new SplatPrototype[1];
     private IPEndPoint endPoint;
     private UdpClient client;
     private Thread receiveThread;
     private bool isOn;
+    private Texture2D texture;
+    private SplatPrototype[] terrainTexture = new SplatPrototype[1];
 
+    double[] media = {0, 0, 0};
+    int[] count = {0, 0};
     float deltaTime = 0.0f;
+    float recoveryTime = 0.0f; //no terrame
+    float decodingTime = 0.0f;
+    float renderingTime = 0.0f;
+    float waitingTime = 0.0f;
 
     private void Start(){
         Init(Port);
         terrainTexture[0] = new SplatPrototype();
+        Time.captureFramerate = 50;
     }
 
     public void Update(){
@@ -77,6 +85,7 @@ public class UdpReceiver:MonoBehaviour {
     }
 
     public void Decode(string messageReceived){
+        Stopwatch renderingTime = Stopwatch.StartNew();
         string[] tokens = messageReceived.Split('$');
 
         //for (int i=0;i<tokens.Length;i++) print(i + ": " + tokens[i]);
@@ -84,11 +93,11 @@ public class UdpReceiver:MonoBehaviour {
         int dimx = Convert.ToInt16(Math.Sqrt(size));
         int dimy = Convert.ToInt16(Math.Sqrt(size));
         tData.heightmapResolution = dimx;
-        tData.size = new Vector3(Convert.ToSingle(Math.Sqrt(size/2)), dimx/3, Convert.ToSingle(Math.Sqrt(size/2)));
+        tData.size = new Vector3(dimx/6, 5, dimx/6);
         texture = new Texture2D(dimx, dimy);
-        skr.material.mainTexture = texture;
-        //Debug.Log(tData.heightmapWidth + " " + tData.heightmapHeight + " " + texture.width + " " + texture.height);
-        float[,] heights = tData.GetHeights(0, 0, tData.heightmapWidth, tData.heightmapHeight);
+        //Debug.Log(tData.heightmapWidth + " " + tData.heightmapHeight + " " + texture.width + " " + texture.height +" " + tData.size);
+        float[,] heights = new float[tData.heightmapWidth,tData.heightmapHeight];
+        //float[,] heights = tData.GetHeights(0, 0, tData.heightmapWidth, tData.heightmapHeight);
         Color32[] pixels = new Color32[size];
         int key = Convert.ToInt16(tokens[0]);
         switch(key){
@@ -144,6 +153,7 @@ public class UdpReceiver:MonoBehaviour {
                                             h = 0.0f;
                                         }
                                         heights[yi,xi] = h;
+                                        //Debug.Log(yi+" "+xi + " " + h);
                                         aux += 3;
                                     break;
                                 }
@@ -155,11 +165,15 @@ public class UdpReceiver:MonoBehaviour {
             break;
         }
         texture.SetPixels32(pixels);
+        skr.material.mainTexture = texture;
         texture.Apply();
         terrainTexture[0].texture = texture;
         tData.splatPrototypes = terrainTexture;
         tData.SetHeightsDelayLOD(0,0,heights);
         deltaTime += (Time.unscaledDeltaTime - deltaTime) * 0.1f;
+        renderingTime.Stop();
+        media[1] = media[1] + renderingTime.ElapsedMilliseconds;
+        count[1]++;
     }
 
     private void OnApplicationQuit() {
@@ -181,6 +195,13 @@ public class UdpReceiver:MonoBehaviour {
     }
 
     public void Kill() {
+        media[0] = media[0] / count[0];
+        media[1] = media[1] / count[1];
+        media[2] = totalFps / Time.frameCount;
+        System.IO.File.WriteAllText("/home/bernardo/Desktop/bernardo/UFOP/TerraLAB/Unity Project/Observer 3D Alpha/Assets/InternetSender/output/output.txt",
+            "Decoding time: " + media[0] + "\n" +
+            "Rendering time: " + media[1] + "\n" +
+            "Average FPS: " + media[2]);
         isOn = false;
         if (client != null) {
             client.Close();
@@ -198,15 +219,16 @@ public class UdpReceiver:MonoBehaviour {
             sb.Append(b + ", ");
         }
         sb.Append("}");
-        Debug.Log(sb.ToString());
+        UnityEngine.Debug.Log(sb.ToString());
     }
 
     private void ReceiveData(){
         string msg = "";
         while (isOn) {
             try {
+                Stopwatch decodingTime = Stopwatch.StartNew();
                 byte[] data = client.Receive(ref endPoint);
-                Encoding iso = Encoding.GetEncoding("latin1");
+                Encoding iso = Encoding.GetEncoding("ISO-8859-1");
                 string result = iso.GetString(data);
                 //PrintByteArray(data);
                 //Debug.Log(result);
@@ -226,6 +248,10 @@ public class UdpReceiver:MonoBehaviour {
                     //Debug.Log(msg);
                     lock(messageLock){
                         messageList.Add(msg);
+                        decodingTime.Stop();
+                        media[0] = media[0] + decodingTime.ElapsedMilliseconds;
+                        count[0]++;
+                        //UnityEngine.Debug.Log(decodingTime.ElapsedMilliseconds);
                     }
                     result = "";
                     msg = "";
@@ -243,6 +269,7 @@ public class UdpReceiver:MonoBehaviour {
         }
     }
 
+    float totalFps = 0;
     void OnGUI(){
         int w = Screen.width, h = Screen.height;
 
@@ -254,6 +281,7 @@ public class UdpReceiver:MonoBehaviour {
         style.normal.textColor = new Color (0.0f, 0.0f, 0.5f, 1.0f);
         float msec = deltaTime * 1000.0f;
         float fps = 1.0f / deltaTime;
+        if (fps < 100) totalFps += fps;
         string text = string.Format("{0:0.0} ms ({1:0.} fps)", msec, fps);
         GUI.Label(rect, text, style);
     }
