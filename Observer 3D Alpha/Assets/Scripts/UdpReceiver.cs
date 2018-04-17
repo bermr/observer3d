@@ -27,17 +27,14 @@ public class UdpReceiver:MonoBehaviour {
     int[] count = {0, 0};
     float deltaTime = 0.0f;
     float recoveryTime = 0.0f; //no terrame
-    float decodingTime = 0.0f;
-    float renderingTime = 0.0f;
-    float waitingTime = 0.0f;
 
     private void Start(){
         Init(Port);
         terrainTexture[0] = new SplatPrototype();
-        Time.captureFramerate = 50;
+        //Time.captureFramerate = 10;
     }
 
-    public void Update(){
+    public void FixedUpdate(){
         lock(messageLock){
             if (messageList.Count > 0){
                 Decode(messageList[0]);
@@ -96,8 +93,8 @@ public class UdpReceiver:MonoBehaviour {
         tData.size = new Vector3(dimx/6, 5, dimx/6);
         texture = new Texture2D(dimx, dimy);
         //Debug.Log(tData.heightmapWidth + " " + tData.heightmapHeight + " " + texture.width + " " + texture.height +" " + tData.size);
-        float[,] heights = new float[tData.heightmapWidth,tData.heightmapHeight];
         //float[,] heights = tData.GetHeights(0, 0, tData.heightmapWidth, tData.heightmapHeight);
+        float[,] heights = new float[tData.heightmapWidth,tData.heightmapHeight];
         Color32[] pixels = new Color32[size];
         int key = Convert.ToInt16(tokens[0]);
         switch(key){
@@ -198,7 +195,8 @@ public class UdpReceiver:MonoBehaviour {
         media[0] = media[0] / count[0];
         media[1] = media[1] / count[1];
         media[2] = totalFps / Time.frameCount;
-        System.IO.File.WriteAllText("/home/bernardo/Desktop/bernardo/UFOP/TerraLAB/Unity Project/Observer 3D Alpha/Assets/InternetSender/output/output.txt",
+        string fileName = "/home/bernardo/Desktop/bernardo/UFOP/TerraLAB/Unity Project/Observer 3D Alpha/Assets/InternetSender/output/output" + texture.width + "x" + texture.height + ".txt";
+        System.IO.File.WriteAllText(fileName,
             "Decoding time: " + media[0] + "\n" +
             "Rendering time: " + media[1] + "\n" +
             "Average FPS: " + media[2]);
@@ -281,7 +279,7 @@ public class UdpReceiver:MonoBehaviour {
         style.normal.textColor = new Color (0.0f, 0.0f, 0.5f, 1.0f);
         float msec = deltaTime * 1000.0f;
         float fps = 1.0f / deltaTime;
-        if (fps < 100) totalFps += fps;
+        if (fps < 50) totalFps += fps;
         string text = string.Format("{0:0.0} ms ({1:0.} fps)", msec, fps);
         GUI.Label(rect, text, style);
     }

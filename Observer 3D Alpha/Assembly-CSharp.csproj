@@ -54,9 +54,12 @@
      <Compile Include="Assets\Scripts\BallController.cs" />
      <Compile Include="Assets\Scripts\CameraController.cs" />
      <Compile Include="Assets\Scripts\FPSDisplay.cs" />
-     <Compile Include="Assets\Scripts\RingBuffer.cs" />
      <Compile Include="Assets\Scripts\UdpReceiver.cs" />
-     <None Include="Assets\InternetSender\output\output.txt" />
+     <None Include="Assets\InternetSender\output\output80x80.txt" />
+     <None Include="Assets\InternetSender\output\output40x40.txt" />
+     <None Include="Assets\InternetSender\output\output28x28.txt" />
+     <None Include="Assets\InternetSender\output\output56x56.txt" />
+     <None Include="Assets\InternetSender\output\output20x20.txt" />
  <Reference Include="UnityEngine.CoreModule">
  <HintPath>/opt/Unity/Editor/Data/Managed/UnityEngine/UnityEngine.CoreModule.dll</HintPath>
  </Reference>

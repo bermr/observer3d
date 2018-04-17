@@ -15,7 +15,7 @@ cs = CellularSpace{
             --print(cell.x, cell.height)
         end)
         cs:notify()
-        os.execute("sleep " .. tonumber(0.03))
+        os.execute("sleep " .. tonumber(0.02))
     end
 }
 
