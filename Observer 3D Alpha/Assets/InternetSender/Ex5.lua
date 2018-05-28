@@ -1,8 +1,5 @@
 -- sending a basic CellularSpace
 
-x = 0
-y = 0
-
 cell = Cell{
     cover = "green",
     --height = 0.0

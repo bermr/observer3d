@@ -90,7 +90,7 @@ public class UdpReceiver:MonoBehaviour {
         int dimx = Convert.ToInt16(Math.Sqrt(size));
         int dimy = Convert.ToInt16(Math.Sqrt(size));
         tData.heightmapResolution = dimx;
-        tData.size = new Vector3(dimx/6, 3, dimx/6);
+        tData.size = new Vector3(dimx/3, 15, dimx/3);
         texture = new Texture2D(dimx, dimy);
         //Debug.Log(tData.heightmapWidth + " " + tData.heightmapHeight + " " + texture.width + " " + texture.height +" " + tData.size);
         //float[,] heights = tData.GetHeights(0, 0, tData.heightmapWidth, tData.heightmapHeight);
@@ -150,8 +150,8 @@ public class UdpReceiver:MonoBehaviour {
                                         } catch(Exception err){
                                             h = 0.0f;
                                         }
-                                        heights[yi,xi] = h;
-                                        UnityEngine.Debug.Log(yi+" "+xi + " ");
+                                        heights[xi,yi] = h;
+                                        //UnityEngine.Debug.Log(yi+" "+xi + " ");
                                         aux += 3;
                                     break;
                                 }
@@ -247,7 +247,7 @@ public class UdpReceiver:MonoBehaviour {
                     //Debug.Log(msg);
                     lock(messageLock){
                         messageList.Add(msg);
-                        //UnityEngine.Debug.Log(msg.Length);
+                        //UnityEngine.Debug.Log(msg);
                         decodingTime.Stop();
                         media[0] = media[0] + decodingTime.ElapsedMilliseconds;
                         count[0]++;
@@ -264,7 +264,7 @@ public class UdpReceiver:MonoBehaviour {
                 }
 
             } catch (Exception err){
-                UnityEngine.Debug.Log("Nothing received");
+                //UnityEngine.Debug.Log("Nothing received");
             }
         }
     }
