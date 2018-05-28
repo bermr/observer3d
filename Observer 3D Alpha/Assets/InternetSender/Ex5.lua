@@ -1,32 +1,20 @@
--- sending a basic cellular CellularSpace
+-- sending a basic CellularSpace
 
-r = Random()
+x = 0
+y = 0
+
 cell = Cell{
-    height = Random{min = 0, max = 1},
-    cover = Random{"green", "black", "red"}
+    cover = "green",
+    --height = 0.0
 }
 
 cs = CellularSpace{
-    xdim = 1,
+    file = filePath("cabecadeboi.shp", "gis"),
     instance = cell,
     execute = function(self)
-        forEachCell (cs, function(cell)
-            cell.height = (cell.x+15*r:number())/50
-            --print(cell.x, cell.height)
-        end)
         cs:notify()
-        os.execute("sleep " .. tonumber(0.02))
+        os.execute("sleep " .. tonumber(0.1))
     end
-}
-
-is = InternetSender{
-    target = cs,
-    port = 55000,
-    host = "127.0.0.1",
-    select = "cover",
-    protocol = "udp",
-    compress = false,
-    visible = false
 }
 
 is = InternetSender{
@@ -39,13 +27,22 @@ is = InternetSender{
     visible = false
 }
 
+is = InternetSender{
+    target = cs,
+    port = 55000,
+    host = "127.0.0.1",
+    select = "cover",
+    protocol = "udp",
+    compress = false,
+    visible = false
+}
+
 e = Environment{
     cs
 }
-
 
 t = Timer{
     Event{action = cs}
 }
 
-t:run(1)
+t:run(2)

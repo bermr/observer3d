@@ -55,7 +55,10 @@
      <Compile Include="Assets\Scripts\CameraController.cs" />
      <Compile Include="Assets\Scripts\FPSDisplay.cs" />
      <Compile Include="Assets\Scripts\UdpReceiver.cs" />
+     <None Include="Assets\InternetSender\output\output33x33.txt" />
+     <None Include="Assets\InternetSender\output\output0x0.txt" />
      <None Include="Assets\InternetSender\output\output80x80.txt" />
+     <None Include="Assets\InternetSender\output\output90x90.txt" />
      <None Include="Assets\InternetSender\output\output40x40.txt" />
      <None Include="Assets\InternetSender\output\output28x28.txt" />
      <None Include="Assets\InternetSender\output\output56x56.txt" />

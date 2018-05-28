@@ -90,7 +90,7 @@ public class UdpReceiver:MonoBehaviour {
         int dimx = Convert.ToInt16(Math.Sqrt(size));
         int dimy = Convert.ToInt16(Math.Sqrt(size));
         tData.heightmapResolution = dimx;
-        tData.size = new Vector3(dimx/6, 5, dimx/6);
+        tData.size = new Vector3(dimx/6, 3, dimx/6);
         texture = new Texture2D(dimx, dimy);
         //Debug.Log(tData.heightmapWidth + " " + tData.heightmapHeight + " " + texture.width + " " + texture.height +" " + tData.size);
         //float[,] heights = tData.GetHeights(0, 0, tData.heightmapWidth, tData.heightmapHeight);
@@ -144,13 +144,14 @@ public class UdpReceiver:MonoBehaviour {
                                             hei = tokens[aux+5];
                                             hei = (hei.Length < 5) ? hei  : hei.Substring(0,5);
                                             hei = "0." + hei;
-                                            h = 10*((float) Convert.ToDouble(hei));
+                                            h = ((float) Convert.ToDouble(hei));
+                                            //UnityEngine.Debug.Log(h);
                                             if (h==1) h = 0.0f;
                                         } catch(Exception err){
                                             h = 0.0f;
                                         }
                                         heights[yi,xi] = h;
-                                        //Debug.Log(yi+" "+xi + " " + h);
+                                        UnityEngine.Debug.Log(yi+" "+xi + " ");
                                         aux += 3;
                                     break;
                                 }
@@ -195,11 +196,11 @@ public class UdpReceiver:MonoBehaviour {
         media[0] = media[0] / count[0];
         media[1] = media[1] / count[1];
         media[2] = totalFps / Time.frameCount;
-        string fileName = "/home/bernardo/Desktop/bernardo/UFOP/TerraLAB/Unity Project/Observer 3D Alpha/Assets/InternetSender/output/output" + texture.width + "x" + texture.height + ".txt";
-        System.IO.File.WriteAllText(fileName,
-            "Decoding time: " + media[0] + "\n" +
-            "Rendering time: " + media[1] + "\n" +
-            "Average FPS: " + media[2]);
+        //string fileName = "/home/bernardo/Desktop/bernardo/UFOP/TerraLAB/Unity Project/Observer 3D Alpha/Assets/InternetSender/output/output" + texture.width + "x" + texture.height + ".txt";
+        //System.IO.File.WriteAllText(fileName,
+        //    "Decoding time: " + media[0] + "\n" +
+        //    "Rendering time: " + media[1] + "\n" +
+        //    "Average FPS: " + media[2]);
         isOn = false;
         if (client != null) {
             client.Close();
@@ -229,7 +230,6 @@ public class UdpReceiver:MonoBehaviour {
                 Encoding iso = Encoding.GetEncoding("ISO-8859-1");
                 string result = iso.GetString(data);
                 //PrintByteArray(data);
-                //Debug.Log(result);
                 StringBuilder sb = new StringBuilder();
                 foreach (char c in result){
                     if ((c >= 'A' && c <= 'Z')||(c=='_')||(c == '$')||(c >= '0' && c <= '9')||(c >= 'a' && c <= 'z')){
@@ -237,6 +237,7 @@ public class UdpReceiver:MonoBehaviour {
                     }
                 }
                 result = sb.ToString();
+                //UnityEngine.Debug.Log(result);
                 //Debug.Log(result);
                 if (result.Equals("COMPLETE_STATE")){
                     string[] auxStr = msg.Split('$');
@@ -246,6 +247,7 @@ public class UdpReceiver:MonoBehaviour {
                     //Debug.Log(msg);
                     lock(messageLock){
                         messageList.Add(msg);
+                        //UnityEngine.Debug.Log(msg.Length);
                         decodingTime.Stop();
                         media[0] = media[0] + decodingTime.ElapsedMilliseconds;
                         count[0]++;
@@ -262,7 +264,7 @@ public class UdpReceiver:MonoBehaviour {
                 }
 
             } catch (Exception err){
-                //Debug.Log("Nothing received");
+                UnityEngine.Debug.Log("Nothing received");
             }
         }
     }

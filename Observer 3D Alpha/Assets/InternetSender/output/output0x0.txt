@@ -1,0 +1,3 @@
+Decoding time: 5.52777777777778
+Rendering time: 54.7121212121212
+Average FPS: 25.7167589502427
