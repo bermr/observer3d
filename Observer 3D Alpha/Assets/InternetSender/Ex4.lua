@@ -72,4 +72,4 @@ timer = Timer{
     end},
 }
 
-timer:run(1)
+timer:run(10)

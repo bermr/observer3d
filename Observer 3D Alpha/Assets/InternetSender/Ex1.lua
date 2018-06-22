@@ -3,19 +3,31 @@
 r = Random()
 cell = Cell{
     height = Random{min = 0, max = 1},
-    cover = Random{"green", "black", "red"}
+    cover = "green"
 }
 
 cs = CellularSpace{
-    xdim = 1,
+    xdim = 33,
     instance = cell,
     execute = function(self)
         forEachCell (cs, function(cell)
-            cell.height = (cell.x+15*r:number())/50
+            cell.height = (cell.x+15*r:number())/33
+            if (cell.height >= 0.9) then
+                cell.cover = "red"
+            end
+            if (cell.height <= 0.2) then
+                cell.cover = "blue"
+            end
+            if (cell.height > 0.2 and cell.height < 0.6) then
+                cell.cover = "green"
+            end
+            if (cell.height >= 0.6 and cell.height < 0.9) then
+                cell.cover = "yellow"
+            end
             --print(cell.x, cell.height)
         end)
         cs:notify()
-        os.execute("sleep " .. tonumber(0.02))
+        os.execute("sleep " .. tonumber(0.1))
     end
 }
 
@@ -39,6 +51,22 @@ is = InternetSender{
     visible = false
 }
 
+map = Map{
+    target = cs,
+    select = "cover",
+    value = {"red", "yellow", "green", "blue"},
+    color = {"red", "yellow", "green", "blue"}
+}
+
+map2 = Map{
+    target = cs,
+    select = "height",
+    min = 0,
+    max = 1,
+    slices = 10,
+    color = {"white","black"}
+}
+
 e = Environment{
     cs
 }
@@ -48,4 +76,4 @@ t = Timer{
     Event{action = cs}
 }
 
-t:run(1)
+t:run(100)

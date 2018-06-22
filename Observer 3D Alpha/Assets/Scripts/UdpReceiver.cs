@@ -20,8 +20,6 @@ public class UdpReceiver:MonoBehaviour {
     private UdpClient client;
     private Thread receiveThread;
     private bool isOn;
-    private Texture2D texture;
-    private SplatPrototype[] terrainTexture = new SplatPrototype[1];
 
     double[] media = {0, 0, 0};
     int[] count = {0, 0};
@@ -30,7 +28,6 @@ public class UdpReceiver:MonoBehaviour {
 
     private void Start(){
         Init(Port);
-        terrainTexture[0] = new SplatPrototype();
         //Time.captureFramerate = 10;
     }
 
@@ -63,6 +60,9 @@ public class UdpReceiver:MonoBehaviour {
             case("blue"):
                 return Color.blue;
             break;
+            case("yellow"):
+                return new Color(1.0f,1.0f,0.0f);
+            break;
             default: return Color.black;
             break;
         }
@@ -85,17 +85,18 @@ public class UdpReceiver:MonoBehaviour {
         Stopwatch renderingTime = Stopwatch.StartNew();
         string[] tokens = messageReceived.Split('$');
 
-        //for (int i=0;i<tokens.Length;i++) print(i + ": " + tokens[i]);
+        Texture2D texture;
         int size = Convert.ToInt16(tokens[1]);
         int dimx = Convert.ToInt16(Math.Sqrt(size));
         int dimy = Convert.ToInt16(Math.Sqrt(size));
         tData.heightmapResolution = dimx;
-        tData.size = new Vector3(dimx/3, 15, dimx/3);
+        tData.size = new Vector3(15, 50, 15);
         texture = new Texture2D(dimx, dimy);
         //Debug.Log(tData.heightmapWidth + " " + tData.heightmapHeight + " " + texture.width + " " + texture.height +" " + tData.size);
         //float[,] heights = tData.GetHeights(0, 0, tData.heightmapWidth, tData.heightmapHeight);
         float[,] heights = new float[tData.heightmapWidth,tData.heightmapHeight];
         Color32[] pixels = new Color32[size];
+        bool back = false;
         int key = Convert.ToInt16(tokens[0]);
         switch(key){
             case(1):
@@ -125,8 +126,8 @@ public class UdpReceiver:MonoBehaviour {
                                     case("cover"):
                                         coverColor = tokens[aux+5];
                                         color = findColor(coverColor);
-                                        pixels[Convert.ToInt16(tokens[aux-1]) - 3] = color;
-                                        //texture.SetPixel(xi, yi, color);
+                                        //pixels[Convert.ToInt16(tokens[aux-1]) - 3] = color;
+                                        texture.SetPixel(xi, yi, color);
                                         aux += 3;
                                     break;
                                     case("water"):
@@ -150,19 +151,25 @@ public class UdpReceiver:MonoBehaviour {
                                         } catch(Exception err){
                                             h = 0.0f;
                                         }
-                                        heights[xi,yi] = h;
+                                        heights[yi,xi] = h;
                                         //UnityEngine.Debug.Log(yi+" "+xi + " ");
                                         aux += 3;
+                                    break;
+                                    default:
+                                    back = true;
                                     break;
                                 }
                             }
                     }
                     } catch(Exception err){ i--;}
-                    i += attNumber*3 + 5; //8 ou 11
+                    if (!back)  i += attNumber*3 + 5; //8 ou 11
+                    else i--;
                 }
             break;
         }
-        texture.SetPixels32(pixels);
+        SplatPrototype[] terrainTexture = new SplatPrototype[1];
+        terrainTexture[0] = new SplatPrototype();
+        //texture.SetPixels32(pixels);
         skr.material.mainTexture = texture;
         texture.Apply();
         terrainTexture[0].texture = texture;
@@ -237,8 +244,6 @@ public class UdpReceiver:MonoBehaviour {
                     }
                 }
                 result = sb.ToString();
-                //UnityEngine.Debug.Log(result);
-                //Debug.Log(result);
                 if (result.Equals("COMPLETE_STATE")){
                     string[] auxStr = msg.Split('$');
                     int index = msg.IndexOf("$$");

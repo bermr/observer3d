@@ -2,11 +2,12 @@
 
 cell = Cell{
     cover = "green",
-    --height = 0.0
+    height = Random{min = 0, max = 1}
 }
 
 cs = CellularSpace{
-    file = filePath("cabecadeboi.shp", "gis"),
+    --file = filePath("cabecadeboi.shp", "gis"),
+    xdim = 33,
     instance = cell,
     execute = function(self)
         cs:notify()
@@ -24,7 +25,7 @@ is = InternetSender{
     visible = false
 }
 
-is = InternetSender{
+--[[is = InternetSender{
     target = cs,
     port = 55000,
     host = "127.0.0.1",
@@ -32,7 +33,7 @@ is = InternetSender{
     protocol = "udp",
     compress = false,
     visible = false
-}
+}]]
 
 e = Environment{
     cs
@@ -42,4 +43,4 @@ t = Timer{
     Event{action = cs}
 }
 
-t:run(2)
+t:run(10)
