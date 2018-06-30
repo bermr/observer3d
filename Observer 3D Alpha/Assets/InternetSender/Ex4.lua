@@ -52,16 +52,34 @@ cs:createNeighborhood{
     protocol = "udp",
     compress = false,
     visible = false
-}]]
+}
 
 is = InternetSender{
     target = cs,
     port = 55000,
     host = "127.0.0.1",
-    select = "height",
+    select = "water",
     protocol = "udp",
     compress = false,
     visible = false
+}]]
+
+map = Map{
+    target = cs,
+    select = "water",
+    min = 0,
+    max = 100000,
+    slices = 10,
+    color = {"white", "blue"}
+}
+
+map2 = Map{
+    target = cs,
+    select = "height",
+    min = 0,
+    max = 250,
+    slices = 10,
+    color = {"white", "black"}
 }
 
 timer = Timer{
@@ -69,7 +87,8 @@ timer = Timer{
         cs:synchronize()
         cs:execute()
         cs:notify()
+        os.execute("sleep " .. tonumber(2.5))
     end},
 }
 
-timer:run(10)
+timer:run(100)

@@ -69,15 +69,15 @@ public class UdpReceiver:MonoBehaviour {
     }
 
     public Color findColorW(long color){
-        if (color < 100) return Color.white;
-        else if (color > 100 && color < 1000) return new Color(0.80f, 0.90f, 1.00f);
-        else if (color > 1000 && color < 2000) return new Color(0.70f, 0.80f, 0.90f);
-        else if (color > 2000 && color < 3000) return new Color(0.60f, 0.70f, 0.80f);
-        else if (color > 3000 && color < 5000) return new Color(0.50f, 0.60f, 0.70f);
-        else if (color > 5000 && color < 6000) return new Color(0.40f, 0.50f, 0.60f);
-        else if (color > 6000 && color < 7000) return new Color(0.30f, 0.40f, 0.50f);
-        else if (color > 7000 && color < 8000) return new Color(0.20f, 0.30f, 0.40f);
-        else if (color > 8000 && color < 9000) return new Color(0.10f, 0.20f, 0.30f);
+        if (color < 1000) return Color.white;
+        else if (color > 1000 && color < 10000) return new Color(0.80f, 0.90f, 1.00f);
+        else if (color > 10000 && color < 20000) return new Color(0.70f, 0.80f, 0.90f);
+        else if (color > 20000 && color < 30000) return new Color(0.60f, 0.70f, 0.80f);
+        else if (color > 30000 && color < 50000) return new Color(0.50f, 0.60f, 0.70f);
+        else if (color > 50000 && color < 60000) return new Color(0.40f, 0.50f, 0.60f);
+        else if (color > 60000 && color < 70000) return new Color(0.30f, 0.40f, 0.50f);
+        else if (color > 70000 && color < 80000) return new Color(0.20f, 0.30f, 0.40f);
+        else if (color > 80000 && color < 90000) return new Color(0.10f, 0.20f, 0.30f);
         else return new Color(0.05f, 0.10f, 0.20f);
     }
 
@@ -90,7 +90,7 @@ public class UdpReceiver:MonoBehaviour {
         int dimx = Convert.ToInt16(Math.Sqrt(size));
         int dimy = Convert.ToInt16(Math.Sqrt(size));
         tData.heightmapResolution = dimx;
-        tData.size = new Vector3(15, 50, 15);
+        tData.size = new Vector3(15, 30, 15);
         texture = new Texture2D(dimx, dimy);
         //Debug.Log(tData.heightmapWidth + " " + tData.heightmapHeight + " " + texture.width + " " + texture.height +" " + tData.size);
         //float[,] heights = tData.GetHeights(0, 0, tData.heightmapWidth, tData.heightmapHeight);
@@ -136,8 +136,8 @@ public class UdpReceiver:MonoBehaviour {
                                         coverColor = (coverColor.Length < 5) ? coverColor  : coverColor.Substring(0,5);
                                         water = Convert.ToInt64(coverColor);
                                         color = findColorW(water);
-                                        pixels[Convert.ToInt16(tokens[aux-1]) - 3] = color;
-                                        //texture.SetPixel(xi, yi, color);
+                                        //pixels[Convert.ToInt16(tokens[aux-1]) - 3] = color;
+                                        texture.SetPixel(xi, yi, color);
                                         aux += 3;
                                     break;
                                     case("height"):

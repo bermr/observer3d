@@ -12,7 +12,7 @@ cs = CellularSpace{
     execute = function(self)
         forEachCell (cs, function(cell)
             cell.height = (cell.x+15*r:number())/33
-            if (cell.height >= 0.9) then
+            if (cell.height > 0.95) then
                 cell.cover = "red"
             end
             if (cell.height <= 0.2) then
@@ -21,8 +21,17 @@ cs = CellularSpace{
             if (cell.height > 0.2 and cell.height < 0.6) then
                 cell.cover = "green"
             end
-            if (cell.height >= 0.6 and cell.height < 0.9) then
+            if (cell.height >= 0.6 and cell.height <= 0.95) then
                 cell.cover = "yellow"
+            end
+            if (cell.x == 32) then
+                cell.height = 0
+            end
+            if (cell.y == 32) then
+                cell.height = 0
+            end
+            if (cell.y == 0) then
+                cell.height = 0
             end
             --print(cell.x, cell.height)
         end)
@@ -31,7 +40,7 @@ cs = CellularSpace{
     end
 }
 
-is = InternetSender{
+--[[is = InternetSender{
     target = cs,
     port = 55000,
     host = "127.0.0.1",
@@ -49,7 +58,7 @@ is = InternetSender{
     protocol = "udp",
     compress = false,
     visible = false
-}
+}]]
 
 map = Map{
     target = cs,
